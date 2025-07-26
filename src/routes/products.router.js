@@ -6,7 +6,7 @@ const router = Router();
 // Inicializamos el ProductManager
 const productManager = new ProductManager('./data/products.json');
 
-// GET / - Obtener todos los productos
+// GET / - Obtener todos los productos 
 router.get('/', async (req, res) => {
     try {
         const products = await productManager.getProducts();

@@ -3,7 +3,7 @@ import CartManager from '../managers/CartManager.js';
 
 const router = Router();
 
-// Inicializamos el CartManager
+// Inicializamos el CartManager 
 const cartManager = new CartManager('./data/carts.json');
 
 // POST / - Crear nuevo carrito

@@ -85,7 +85,7 @@ class CartManager {
                 cart.products[existingProductIndex].quantity += 1;
                 console.log(`Cantidad del producto ${productId} incrementada en el carrito ${cartId}`);
             } else {
-                // Si el producto no existe, lo agregamos con cantidad 1
+                // Si el producto no existe, lo agregamos con cantidad 1 
                 cart.products.push({
                     product: productId,
                     quantity: 1
@@ -93,7 +93,7 @@ class CartManager {
                 console.log(`Producto ${productId} agregado al carrito ${cartId}`);
             }
 
-            // Actualizamos el carrito en el array
+            // Actualizamos el carrito en el array 
             carts[cartIndex] = cart;
 
             // Guardamos en el archivo
