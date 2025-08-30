@@ -6,6 +6,14 @@ const router = Router();
 // Inicializamos el ProductManager
 const productManager = new ProductManager('./data/products.json');
 
+// Variable para almacenar la instancia de Socket.IO
+let io;
+
+// Función para configurar la instancia de Socket.IO
+export const setSocketIO = (socketInstance) => {
+    io = socketInstance;
+};
+
 // GET / - Obtener todos los productos 
 router.get('/', async (req, res) => {
     try {
@@ -37,6 +45,14 @@ router.post('/', async (req, res) => {
     try {
         const productData = req.body;
         const newProduct = await productManager.addProduct(productData);
+        
+        // Si hay conexión WebSocket, emitir actualización
+        if (io) {
+            const products = await productManager.getProducts();
+            io.emit('updateProducts', products);
+            io.emit('productAdded', newProduct);
+        }
+        
         res.status(201).json(newProduct);
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -49,6 +65,14 @@ router.put('/:pid', async (req, res) => {
         const { pid } = req.params;
         const updates = req.body;
         const updatedProduct = await productManager.updateProduct(pid, updates);
+        
+        // Si hay conexión WebSocket, emitir actualización
+        if (io) {
+            const products = await productManager.getProducts();
+            io.emit('updateProducts', products);
+            io.emit('productUpdated', updatedProduct);
+        }
+        
         res.json(updatedProduct);
     } catch (error) {
         if (error.message === 'Producto no encontrado') {
@@ -64,6 +88,14 @@ router.delete('/:pid', async (req, res) => {
     try {
         const { pid } = req.params;
         const result = await productManager.deleteProduct(pid);
+        
+        // Si hay conexión WebSocket, emitir actualización
+        if (io) {
+            const products = await productManager.getProducts();
+            io.emit('updateProducts', products);
+            io.emit('productDeleted', result);
+        }
+        
         res.json(result);
     } catch (error) {
         if (error.message === 'Producto no encontrado') {

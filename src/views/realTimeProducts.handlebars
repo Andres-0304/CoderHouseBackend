@@ -1,0 +1,78 @@
+<h1>{{title}}</h1>
+
+<div class="form-container">
+    <h2 class="form-title">Agregar Nuevo Producto</h2>
+    <form id="addProductForm">
+        <div class="form-group">
+            <label for="title">Título:</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Descripción:</label>
+            <textarea id="description" name="description" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="code">Código:</label>
+            <input type="text" id="code" name="code" required>
+        </div>
+        <div class="form-group">
+            <label for="price">Precio:</label>
+            <input type="number" id="price" name="price" step="0.01" required>
+        </div>
+        <div class="form-group">
+            <label for="stock">Stock:</label>
+            <input type="number" id="stock" name="stock" required>
+        </div>
+        <div class="form-group">
+            <label for="category">Categoría:</label>
+            <input type="text" id="category" name="category" required>
+        </div>
+        <div class="form-group">
+            <label for="status">Estado:</label>
+            <select id="status" name="status">
+                <option value="true">Activo</option>
+                <option value="false">Inactivo</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="thumbnails">URLs de Imágenes (separadas por comas):</label>
+            <input type="text" id="thumbnails" name="thumbnails" placeholder="http://imagen1.jpg, http://imagen2.jpg">
+        </div>
+        <button type="submit" class="submit-btn">Agregar Producto</button>
+    </form>
+</div>
+
+<div id="productsContainer">
+    <div class="product-grid" id="productsList">
+        {{#each products}}
+        <div class="product-card" data-id="{{this.id}}">
+            <div class="product-title">{{this.title}}</div>
+            <div class="product-description">{{this.description}}</div>
+            <div class="product-info"><strong>Código:</strong> {{this.code}}</div>
+            <div class="product-price">${{this.price}}</div>
+            <div class="product-info"><strong>Stock:</strong> {{this.stock}} unidades</div>
+            <div class="product-info"><strong>Categoría:</strong> {{this.category}}</div>
+            <div class="product-info">
+                <strong>Estado:</strong> 
+                {{#if this.status}}
+                    <span class="status-active">Activo</span>
+                {{else}}
+                    <span class="status-inactive">Inactivo</span>
+                {{/if}}
+            </div>
+            {{#if this.thumbnails.length}}
+            <div class="product-info">
+                <strong>Imágenes:</strong>
+                {{#each this.thumbnails}}
+                    <a href="{{this}}" target="_blank">Imagen {{@index}}</a>{{#unless @last}}, {{/unless}}
+                {{/each}}
+            </div>
+            {{/if}}
+            <button class="delete-btn" onclick="deleteProduct({{this.id}})">Eliminar Producto</button>
+        </div>
+        {{/each}}
+    </div>
+    {{#unless products.length}}
+    <p id="noProductsMessage" style="text-align: center; color: #666; font-size: 18px;">No hay productos disponibles</p>
+    {{/unless}}
+</div>

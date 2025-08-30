@@ -1,18 +1,26 @@
 {
-  "name": "entrega1",
+  "name": "entrega2-websockets",
   "version": "1.0.0",
-  "description": "Primera entrega del curso Backend 1 - API de productos y carritos",
+  "description": "Segunda entrega del curso Backend 1 - API de productos y carritos con Handlebars y WebSockets",
   "main": "src/app.js",
   "type": "module",
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js"
   },
-  "keywords": ["backend", "express", "api", "productos", "carritos"],
+  "keywords": [
+    "backend",
+    "express",
+    "api",
+    "productos",
+    "carritos"
+  ],
   "author": "Andre - Backend CoderHouse",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.0"
+    "express": "^4.18.0",
+    "express-handlebars": "^8.0.2",
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

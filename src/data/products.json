@@ -1,3 +1,35 @@
 [
-    
+  {
+    "id": 1,
+    "title": "Laptop Gaming RGB",
+    "description": "Laptop gaming de alta gama con teclado RGB y tarjeta gráfica dedicada",
+    "code": "LAP001",
+    "price": 1299.99,
+    "status": true,
+    "stock": 5,
+    "category": "Tecnología",
+    "thumbnails": ["laptop1.jpg", "laptop2.jpg"]
+  },
+  {
+    "id": 2,
+    "title": "Mouse Gamer Inalámbrico",
+    "description": "Mouse gaming inalámbrico con sensor óptico de alta precisión",
+    "code": "MOU001",
+    "price": 79.99,
+    "status": true,
+    "stock": 15,
+    "category": "Accesorios",
+    "thumbnails": ["mouse1.jpg"]
+  },
+  {
+    "id": 3,
+    "title": "Auriculares Bluetooth",
+    "description": "Auriculares inalámbricos con cancelación de ruido",
+    "code": "AUR001",
+    "price": 199.99,
+    "status": true,
+    "stock": 8,
+    "category": "Audio",
+    "thumbnails": []
+  }
 ]
