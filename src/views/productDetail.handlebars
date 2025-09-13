@@ -1,0 +1,135 @@
+<h1>{{product.title}}</h1>
+
+{{#if error}}
+<div style="color: red; text-align: center; margin: 20px;">
+    <p>{{error}}</p>
+</div>
+{{else}}
+<div style="display: flex; gap: 30px; max-width: 1000px; margin: 0 auto;">
+    <!-- Información del producto -->
+    <div style="flex: 1;">
+        <div class="product-card" style="height: fit-content;">
+            <div class="product-title" style="font-size: 24px; margin-bottom: 15px;">{{product.title}}</div>
+            <div class="product-description" style="font-size: 16px; margin-bottom: 20px;">{{product.description}}</div>
+            
+            <div class="product-info"><strong>Código:</strong> {{product.code}}</div>
+            <div class="product-price" style="font-size: 24px; margin: 15px 0;">${{product.price}}</div>
+            <div class="product-info"><strong>Stock disponible:</strong> {{product.stock}} unidades</div>
+            <div class="product-info"><strong>Categoría:</strong> {{product.category}}</div>
+            
+            <div class="product-info" style="margin: 15px 0;">
+                <strong>Estado:</strong> 
+                {{#if product.status}}
+                    <span class="status-active">Disponible</span>
+                {{else}}
+                    <span class="status-inactive">No disponible</span>
+                {{/if}}
+            </div>
+
+            {{#if product.thumbnails.length}}
+            <div class="product-info">
+                <strong>Imágenes:</strong>
+                <div style="margin-top: 10px;">
+                    {{#each product.thumbnails}}
+                        <a href="{{this}}" target="_blank" style="display: inline-block; margin-right: 10px; margin-bottom: 5px; color: #3498db;">
+                            Ver imagen {{@index}}
+                        </a>
+                    {{/each}}
+                </div>
+            </div>
+            {{/if}}
+        </div>
+    </div>
+
+    <!-- Panel de compra -->
+    <div style="flex: 0 0 300px;">
+        <div class="form-container">
+            <h3>Agregar al Carrito</h3>
+            {{#if product.status}}
+                {{#if (gt product.stock 0)}}
+                <form id="addToCartForm">
+                    <div class="form-group">
+                        <label for="quantity">Cantidad:</label>
+                        <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{product.stock}}" required>
+                        <small>Máximo disponible: {{product.stock}}</small>
+                    </div>
+                    <button type="submit" class="submit-btn" style="width: 100%;">
+                        Agregar al Carrito
+                    </button>
+                </form>
+                {{else}}
+                <p style="color: #e74c3c; text-align: center;">Sin stock disponible</p>
+                {{/if}}
+            {{else}}
+            <p style="color: #e74c3c; text-align: center;">Producto no disponible</p>
+            {{/if}}
+
+            <div style="margin-top: 20px; text-align: center;">
+                <a href="/products" class="navigation">← Volver a productos</a>
+            </div>
+        </div>
+
+        <!-- Información adicional -->
+        <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 8px;">
+            <h4 style="margin-top: 0;">Información de entrega</h4>
+            <ul style="margin: 0; padding-left: 20px;">
+                <li>Envío gratis en compras superiores a $100</li>
+                <li>Entrega en 24-48 horas</li>
+                <li>Garantía de 1 año</li>
+                <li>Devolución gratuita hasta 30 días</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('addToCartForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const quantity = parseInt(document.getElementById('quantity').value);
+    const productId = '{{product._id}}';
+    
+    if (quantity <= 0 || quantity > {{product.stock}}) {
+        alert('Cantidad inválida');
+        return;
+    }
+    
+    // Crear un carrito nuevo para esta operación
+    fetch('/api/carts', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(cartData => {
+        if (cartData.status === 'success') {
+            const cartId = cartData.payload._id;
+            return fetch(`/api/carts/${cartId}/product/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ quantity: quantity })
+            });
+        } else {
+            throw new Error('Error al crear carrito');
+        }
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.status === 'success') {
+            alert(`${quantity} ${quantity === 1 ? 'producto agregado' : 'productos agregados'} al carrito exitosamente!`);
+            // Redirigir al carrito o resetear el formulario
+            document.getElementById('quantity').value = 1;
+        } else {
+            alert('Error: ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al agregar producto al carrito');
+    });
+});
+</script>
+{{/if}}

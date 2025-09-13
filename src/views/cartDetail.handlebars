@@ -1,0 +1,202 @@
+<h1>Carrito de Compras</h1>
+
+{{#if error}}
+<div style="color: red; text-align: center; margin: 20px;">
+    <p>{{error}}</p>
+</div>
+{{else}}
+
+{{#if cart.products.length}}
+<div style="max-width: 1000px; margin: 0 auto;">
+    <!-- Resumen del carrito -->
+    <div class="form-container" style="margin-bottom: 30px;">
+        <h3>Resumen del Carrito</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <p><strong>ID del Carrito:</strong> {{cart._id}}</p>
+                <p><strong>Total de productos:</strong> {{cart.products.length}} tipos diferentes</p>
+                <p><strong>Cantidad total:</strong> {{totalQuantity}} unidades</p>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 24px; font-weight: bold; color: #27ae60;">
+                    Total: ${{totalPrice}}
+                </div>
+                <button class="submit-btn" onclick="clearCart()" style="margin-top: 10px; background-color: #e74c3c;">
+                    Vaciar Carrito
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de productos -->
+    <div class="product-grid">
+        {{#each cart.products}}
+        <div class="product-card" data-product-id="{{this.product._id}}">
+            <div class="product-title">{{this.product.title}}</div>
+            <div class="product-description">{{this.product.description}}</div>
+            <div class="product-info"><strong>Precio unitario:</strong> ${{this.product.price}}</div>
+            <div class="product-info"><strong>Categoría:</strong> {{this.product.category}}</div>
+            <div class="product-info"><strong>Stock disponible:</strong> {{this.product.stock}} unidades</div>
+            
+            <div class="product-info">
+                <strong>Estado:</strong> 
+                {{#if this.product.status}}
+                    <span class="status-active">Disponible</span>
+                {{else}}
+                    <span class="status-inactive">No disponible</span>
+                {{/if}}
+            </div>
+
+            <!-- Control de cantidad -->
+            <div style="margin: 15px 0; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                    <strong>Cantidad en carrito:</strong>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button onclick="updateQuantity('{{this.product._id}}', {{this.quantity}} - 1)" 
+                                class="submit-btn" style="padding: 5px 10px; font-size: 14px;">-</button>
+                        <span id="quantity-{{this.product._id}}" style="font-weight: bold; min-width: 30px; text-align: center;">{{this.quantity}}</span>
+                        <button onclick="updateQuantity('{{this.product._id}}', {{this.quantity}} + 1)" 
+                                class="submit-btn" style="padding: 5px 10px; font-size: 14px;"
+                                {{#unless this.product.status}}disabled{{/unless}}>+</button>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong>Subtotal: $<span id="subtotal-{{this.product._id}}">{{multiply this.product.price this.quantity}}</span></strong>
+                    <button onclick="removeFromCart('{{this.product._id}}')" 
+                            class="delete-btn" style="padding: 5px 10px; font-size: 14px;">
+                        Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+
+    <!-- Acciones del carrito -->
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="/products" class="navigation" style="margin-right: 20px;">← Seguir comprando</a>
+        <button class="submit-btn" onclick="proceedToCheckout()" style="font-size: 18px; padding: 12px 24px;">
+            Proceder al Pago
+        </button>
+    </div>
+</div>
+
+{{else}}
+<div style="text-align: center; margin: 50px 0;">
+    <p style="font-size: 18px; color: #666;">El carrito está vacío</p>
+    <a href="/products" class="submit-btn" style="text-decoration: none; display: inline-block; margin-top: 20px;">
+        Ir a comprar productos
+    </a>
+</div>
+{{/if}}
+
+<script>
+const cartId = '{{cart._id}}';
+
+function updateQuantity(productId, newQuantity) {
+    if (newQuantity < 0) return;
+    
+    fetch(`/api/carts/${cartId}/products/${productId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ quantity: newQuantity })
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.status === 'success') {
+            if (newQuantity === 0) {
+                // Producto eliminado, recargar página
+                location.reload();
+            } else {
+                // Actualizar interfaz
+                document.getElementById(`quantity-${productId}`).textContent = newQuantity;
+                const price = result.payload.products.find(p => p.product._id === productId)?.product.price || 0;
+                document.getElementById(`subtotal-${productId}`).textContent = (price * newQuantity).toFixed(2);
+                updateTotal();
+            }
+        } else {
+            alert('Error: ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al actualizar cantidad');
+    });
+}
+
+function removeFromCart(productId) {
+    if (!confirm('¿Estás seguro de que quieres eliminar este producto del carrito?')) {
+        return;
+    }
+    
+    fetch(`/api/carts/${cartId}/products/${productId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.status === 'success') {
+            location.reload();
+        } else {
+            alert('Error: ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al eliminar producto');
+    });
+}
+
+function clearCart() {
+    if (!confirm('¿Estás seguro de que quieres vaciar todo el carrito?')) {
+        return;
+    }
+    
+    fetch(`/api/carts/${cartId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.status === 'success') {
+            location.reload();
+        } else {
+            alert('Error: ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al vaciar carrito');
+    });
+}
+
+function updateTotal() {
+    // Recalcular total (esta es una versión simplificada)
+    let total = 0;
+    document.querySelectorAll('[id^="subtotal-"]').forEach(element => {
+        total += parseFloat(element.textContent) || 0;
+    });
+    // Actualizar el total en la interfaz si existe el elemento
+    const totalElement = document.querySelector('.total-price');
+    if (totalElement) {
+        totalElement.textContent = `$${total.toFixed(2)}`;
+    }
+}
+
+function proceedToCheckout() {
+    alert('Funcionalidad de checkout aún no implementada. ¡Gracias por su compra simulada!');
+}
+
+// Helper function for Handlebars
+Handlebars.registerHelper('multiply', function(a, b) {
+    return (a * b).toFixed(2);
+});
+</script>
+{{/if}}

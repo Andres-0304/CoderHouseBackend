@@ -1,7 +1,7 @@
 {
-  "name": "entrega2-websockets",
+  "name": "entrega-final-mongodb",
   "version": "1.0.0",
-  "description": "Segunda entrega del curso Backend 1 - API de productos y carritos con Handlebars y WebSockets",
+  "description": "Entrega Final del curso Backend 1 - API de productos y carritos con MongoDB, Handlebars y WebSockets",
   "main": "src/app.js",
   "type": "module",
   "scripts": {
@@ -13,13 +13,20 @@
     "express",
     "api",
     "productos",
-    "carritos"
+    "carritos",
+    "mongodb",
+    "mongoose",
+    "handlebars",
+    "websockets",
+    "pagination"
   ],
   "author": "Andre - Backend CoderHouse",
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.0",
     "express-handlebars": "^8.0.2",
+    "mongoose": "^8.18.1",
+    "mongoose-paginate-v2": "^1.9.1",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {

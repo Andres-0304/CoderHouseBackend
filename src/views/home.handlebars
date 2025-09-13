@@ -1,6 +1,56 @@
 <h1>{{title}}</h1>
 
+{{#if error}}
+<div style="color: red; text-align: center; margin: 20px;">
+    <p>{{error}}</p>
+</div>
+{{/if}}
+
 {{#if products.length}}
+<!-- Controles de filtrado y ordenamiento -->
+<div style="background-color: #f8f9fa; padding: 20px; margin-bottom: 20px; border-radius: 8px;">
+    <h3>Filtros y Ordenamiento</h3>
+    <form method="GET" action="/products" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: end;">
+        <div>
+            <label for="category">Categoría:</label>
+            <select name="category" id="category">
+                <option value="">Todas las categorías</option>
+                <option value="Tecnología" {{#if (eq filters.category 'Tecnología')}}selected{{/if}}>Tecnología</option>
+                <option value="Accesorios" {{#if (eq filters.category 'Accesorios')}}selected{{/if}}>Accesorios</option>
+                <option value="Audio" {{#if (eq filters.category 'Audio')}}selected{{/if}}>Audio</option>
+            </select>
+        </div>
+        <div>
+            <label for="status">Disponibilidad:</label>
+            <select name="status" id="status">
+                <option value="">Todos los productos</option>
+                <option value="true" {{#if (eq filters.status 'true')}}selected{{/if}}>Disponibles</option>
+                <option value="false" {{#if (eq filters.status 'false')}}selected{{/if}}>No disponibles</option>
+            </select>
+        </div>
+        <div>
+            <label for="sort">Ordenar por precio:</label>
+            <select name="sort" id="sort">
+                <option value="">Sin ordenar</option>
+                <option value="asc" {{#if (eq filters.sort 'asc')}}selected{{/if}}>Menor a mayor</option>
+                <option value="desc" {{#if (eq filters.sort 'desc')}}selected{{/if}}>Mayor a menor</option>
+            </select>
+        </div>
+        <div>
+            <label for="limit">Productos por página:</label>
+            <select name="limit" id="limit">
+                <option value="5" {{#if (eq pagination.limit 5)}}selected{{/if}}>5</option>
+                <option value="10" {{#if (eq pagination.limit 10)}}selected{{/if}}>10</option>
+                <option value="20" {{#if (eq pagination.limit 20)}}selected{{/if}}>20</option>
+            </select>
+        </div>
+        <div>
+            <button type="submit" class="submit-btn">Aplicar Filtros</button>
+        </div>
+    </form>
+</div>
+
+<!-- Grid de productos -->
 <div class="product-grid">
     {{#each products}}
     <div class="product-card">
@@ -26,9 +76,76 @@
             {{/each}}
         </div>
         {{/if}}
+        <div style="margin-top: 15px;">
+            <a href="/products/{{this._id}}" class="submit-btn" style="text-decoration: none; display: inline-block; margin-right: 10px;">Ver Detalles</a>
+            {{#if this.status}}
+            <button class="submit-btn" onclick="addToCart('{{this._id}}')">Agregar al Carrito</button>
+            {{/if}}
+        </div>
     </div>
     {{/each}}
 </div>
+
+<!-- Paginación -->
+{{#if pagination}}
+<div style="text-align: center; margin: 30px 0;">
+    <div style="margin-bottom: 20px;">
+        <p>Página {{pagination.page}} de {{pagination.totalPages}} 
+           ({{pagination.totalDocs}} productos en total)</p>
+    </div>
+    
+    <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+        {{#if pagination.hasPrevPage}}
+            <a href="{{pagination.prevLink}}" class="navigation" style="padding: 8px 16px;">← Anterior</a>
+        {{/if}}
+        
+        {{#if pagination.hasNextPage}}
+            <a href="{{pagination.nextLink}}" class="navigation" style="padding: 8px 16px;">Siguiente →</a>
+        {{/if}}
+    </div>
+</div>
+{{/if}}
+
 {{else}}
 <p style="text-align: center; color: #666; font-size: 18px;">No hay productos disponibles</p>
 {{/if}}
+
+<script>
+function addToCart(productId) {
+    // Por simplicidad, crear un carrito nuevo para cada operación
+    // En una implementación real, se manejaría un carrito persistente
+    fetch('/api/carts', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(cartData => {
+        if (cartData.status === 'success') {
+            const cartId = cartData.payload._id;
+            return fetch(`/api/carts/${cartId}/product/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ quantity: 1 })
+            });
+        } else {
+            throw new Error('Error al crear carrito');
+        }
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.status === 'success') {
+            alert('Producto agregado al carrito exitosamente!');
+        } else {
+            alert('Error: ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al agregar producto al carrito');
+    });
+}
+</script>

@@ -85,7 +85,7 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
-        .form-group input, .form-group textarea {
+        .form-group input, .form-group textarea, .form-group select {
             width: 100%;
             padding: 8px;
             border: 1px solid #ddd;
@@ -102,6 +102,10 @@
         }
         .submit-btn:hover {
             background-color: #2980b9;
+        }
+        .submit-btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
         }
         .status-active {
             color: #27ae60;
@@ -126,6 +130,41 @@
         }
         .navigation a:hover {
             background-color: #2980b9;
+        }
+        /* Estilos de paginación */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .pagination a, .pagination span {
+            padding: 8px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+        .pagination a {
+            background-color: #3498db;
+            color: white;
+        }
+        .pagination a:hover {
+            background-color: #2980b9;
+        }
+        .pagination .current {
+            background-color: #27ae60;
+            color: white;
+            font-weight: bold;
+        }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+            .navigation a {
+                display: block;
+                margin: 5px 0;
+            }
         }
     </style>
 </head>
